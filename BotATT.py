@@ -61,7 +61,7 @@ def calculate_delay(hour, minute):
 
 # Função assíncrona para agendamento
 async def schedule_messages():
-    schedule_times = [(17, 30), (17, 45), (17, 50), (21, 0)]  # Horários para enviar as mensagens
+    schedule_times = [(17, 48), (17, 50), (17, 50), (21, 0)]  # Horários para enviar as mensagens
     while True:
         for hour, minute in schedule_times:
             delay = calculate_delay(hour, minute)
