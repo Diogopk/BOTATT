@@ -1,36 +1,46 @@
+import schedule
 from telegram import Bot
 import asyncio
 import pytz
-from datetime import datetime, timedelta
+from datetime import datetime
 
-# Definir o fuso horário (exemplo, o horário de Brasília)
+# Definir o fuso horário (exemplo, horário de Brasília)
 timezone = pytz.timezone("America/Sao_Paulo")
 
-# Seu token do bot
+# Seu token do bot (verifique se está correto e ativo)
 TOKEN = '7479524024:AAE0WAun0HEQo9QeHYnI5lALtdtWddQyFFU'
+
+# IDs dos grupos (verifique se os grupos permitem mensagens do bot)
 GROUP_CHAT_IDS = [
     '-1002248961927',
     '-1002233378018',
     '-1002244712891',
     '-1002486468642',
     '-1002172438260'
-]  # IDs dos grupos
+]
 
 # Inicializar o bot
 bot = Bot(token=TOKEN)
 
 # Função para enviar mensagem
 async def send_message(message):
-    tasks = [
-        bot.send_message(chat_id=chat_id, text=message)
-        for chat_id in GROUP_CHAT_IDS
-    ]
+    tasks = []
+    for chat_id in GROUP_CHAT_IDS:
+        tasks.append(bot.send_message(chat_id=chat_id, text=message))
+
+    # Executar todas as mensagens
     results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Verificar se as mensagens foram enviadas com sucesso
     for chat_id, result in zip(GROUP_CHAT_IDS, results):
         if isinstance(result, Exception):
-            print(f"Erro ao enviar para {chat_id}: {result}")
+            print(f"Erro ao enviar para o chat {chat_id}: {result}")
         else:
-            print(f"Mensagem enviada para o chat {chat_id}")
+            print(f"Mensagem enviada com sucesso para o chat {chat_id}")
+
+# Função para agendar tarefas
+def schedule_task(message):
+    asyncio.run(send_message(message))
 
 # Mensagem padrão
 MESSAGE = """
@@ -51,23 +61,21 @@ Contamos com a compreensão de todos e que nos ajudem nessas questões ✌🏻
 Equipe ABJP RJ Taquara 💙
 """
 
-# Função para calcular o tempo restante até o próximo envio
-def calculate_delay(hour, minute):
-    now = datetime.now(timezone)
-    target_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
-    if target_time < now:
-        target_time += timedelta(days=1)
-    return (target_time - now).total_seconds()
+# Agendar mensagens
+schedule.every().day.at("00:00").do(schedule_task, MESSAGE)
+schedule.every().day.at("00:02").do(schedule_task, MESSAGE)
+schedule.every().day.at("00:03").do(schedule_task, MESSAGE)
+schedule.every().day.at("21:00").do(schedule_task, MESSAGE)
 
-# Função assíncrona para agendamento
-async def schedule_messages():
-    schedule_times = [(18, 08), (18, 09), (18, 10), (21, 0)]  # Horários para enviar as mensagens
+# Loop para executar o agendamento
+async def run_scheduler():
     while True:
-        for hour, minute in schedule_times:
-            delay = calculate_delay(hour, minute)
-            print(f"Aguardando {delay} segundos para enviar a mensagem das {hour}:{minute}")
-            await asyncio.sleep(delay)
-            await send_message(MESSAGE)
+        schedule.run_pending()
+        await asyncio.sleep(1)
 
-# Executar o loop principal
-asyncio.run(schedule_messages())
+# Executar o agendador
+if __name__ == "__main__":
+    try:
+        asyncio.run(run_scheduler())
+    except Exception as e:
+        print(f"Erro no bot: {e}")
