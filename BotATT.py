@@ -62,9 +62,9 @@ Equipe ABJP RJ Taquara 💙
 """
 
 # Agendar mensagens
-schedule.every().day.at("00:10").do(schedule_task, MESSAGE)
-schedule.every().day.at("00:12").do(schedule_task, MESSAGE)
-schedule.every().day.at("00:13").do(schedule_task, MESSAGE)
+schedule.every().day.at("00:15").do(schedule_task, MESSAGE)
+schedule.every().day.at("00:17").do(schedule_task, MESSAGE)
+schedule.every().day.at("00:18").do(schedule_task, MESSAGE)
 schedule.every().day.at("21:00").do(schedule_task, MESSAGE)
 
 # Loop para executar o agendamento
